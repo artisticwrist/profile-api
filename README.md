@@ -1,61 +1,115 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Laravel Profile API - HNG stage 0 task
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This is a simple Laravel 12 API project exposing a `GET /me` endpoint that returns user profile data, current timestamp, and a fresh cat fact fetched from an external API.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- GET /me endpoint with rate limiting (30 requests/minute)
+- Returns JSON with user info, UTC ISO 8601 timestamp, and cat fact.
+- Fetches new cat fact on every request (no caching).
+- Handles external API errors gracefully.
+- Basic logging for debugging.
+- PHPUnit test covering the endpoint.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+***
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Local Setup Instructions (Windows with LAMP Stack)
 
-## Learning Laravel
+### Prerequisites
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- **PHP 8.2+**: Download and install from [php.net](https://windows.php.net/download)
+- **Composer**: Install from [getcomposer.org](https://getcomposer.org/download/)
+- **Apache & MySQL**: Use WAMP/XAMPP or any LAMP stack on Windows.
+- **Git** (optional): To clone this repo
+- **Postman** (optional): For API testing and import docs
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### Steps
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+1. **Clone or create Laravel app**
 
-## Laravel Sponsors
+   Navigate your Apache `htdocs` directory (e.g., `C:\xampp\htdocs`), then either clone or create a new Laravel project:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+   ```bash
+   cd C:\xampp\htdocs
+   laravel new app-name
+   cd app-name
+   ```
 
-### Premium Partners
+2. **Copy controller and route**
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+   - Place `ProfileController.php` in `app/Http/Controllers/`
+   - Define the route in `routes/api.php`:
 
-## Contributing
+   ```php
+   use App\Http\Controllers\ProfileController;
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+   Route::middleware('throttle:30,1')
+        ->get('me', [ProfileController::class, 'myProfile'])
+        ->name('profile');
+   ```
 
-## Code of Conduct
+3. **Environment Setup**
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+   Your app does not require a database. Set `.env` with:
 
-## Security Vulnerabilities
+   ```
+   DB_CONNECTION=sqlite
+   DB_DATABASE=:memory:
+   CACHE_DRIVER=file
+   SESSION_DRIVER=file
+   ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+4. **Install dependencies**
 
-## License
+   Run composer install:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+   ```
+   composer install
+   ```
+
+5. **Serve your Laravel app**
+
+   You can serve using artisan or configure Apache:
+
+   ```bash
+   php artisan serve
+   ```
+
+   Visit [http://localhost:8000/api/me](http://localhost:8000/api/me)
+
+6. **Run PHPUnit Tests**
+
+   Run all tests via artisan:
+
+   ```
+   php artisan test
+   ```
+
+***
+
+## Dependencies
+
+- PHP 8.2+
+- Laravel 12.x
+- Composer packages (official Laravel dependencies)
+- Guzzle HTTP Client (comes included with Laravel for making HTTP requests)
+- PHPUnit (for tests, included via composer)
+
+***
+
+## Postman Documentation
+
+Import the API docs via this Postman link:
+
+[https://documenter.getpostman.com/view/29651789/2sB3QNp8Wb](https://documenter.getpostman.com/view/29651789/2sB3QNp8Wb)
+
+This includes the `/me` endpoint with sample responses for easy testing.
+
+***
+
+## Additional Notes
+
+- Make sure `storage/logs` is writable for logging.
+- Rate limiting is set to 30 requests per minute via middleware.
+- CORS is set up to allow from all origins.
+- This project runs without a real database connection by using SQLite in-memory.
