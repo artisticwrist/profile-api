@@ -80,6 +80,7 @@ This is a simple Laravel 12 API project exposing a `GET /me` endpoint that retur
 6. **Run PHPUnit Tests**
 
    Run all tests via artisan:
+   Test for ProfileController is tests/Feature/ProfileControllerTest.php
 
    ```
    php artisan test
